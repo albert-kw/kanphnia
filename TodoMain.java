@@ -45,22 +45,26 @@ public class TodoMain {
     private static boolean _active = false;
 
     public TodoMain (String name) {
+        if (!_dir.exists()) {
+            _dir.mkdir();
+        }
+
+        FILENAME = name;
+        _file = new File (DEFAULT_DIR + File.separator + FILENAME);
 
         _todoList = new Todo (name);
-        FILENAME = name;
-        _file = new File (FILENAME);
+        System.out.printf ("\n'%s' To-do List made\n",
+            _todoList.getName());
 
-        if (!_file.exists()) {
-            try {
-                _file.createNewFile();
+        /** @Debug *
+        System.out.print ("Absolute Filepath: " + _file.getAbsolutePath() +
+            "\n");
+        */
 
-            } catch (Exception e) {
-                System.out.print ("Cannot create new file.\n");
-            }
+        if (_file.exists()) {
 
-        } else {
             System.out.print ("A previously saved Todo List has been found!\n" +
-                "Loading '" + FILENAME + "' list...\n");
+                "Loading '" + name + "' list...\n");
 
             load();
         }
@@ -68,19 +72,9 @@ public class TodoMain {
     } //end ctor (String)
 
     public static void main (String[] args) {
-        if (!_dir.exists()) {
-            _dir.mkdir();
-        }
 
-        if (_dir.listFiles.length == 0) {
-
-            new TodoMain (TodoUtil.prompt ("Enter a name for this list: "));
-            _active = true;
-        }
-
-        System.out.printf ("\n'%s' To-do List made\n",
-            _todoList.getName());
-
+        new TodoMain (TodoUtil.prompt ("Enter a name for this list: "));
+        _active = true;
 
         while (_active) {
             decide();
@@ -214,7 +208,12 @@ public class TodoMain {
 
     private static void save() {
         try {
-            FileWriter fileWriter = new FileWriter (FILENAME);
+
+            if (!_file.exists()) {
+                _file.createNewFile();
+            }
+
+            FileWriter fileWriter = new FileWriter (_file);
             BufferedWriter bufWriter = new BufferedWriter (fileWriter);
 
             for (String i : _todoList.getList()) {
@@ -233,10 +232,12 @@ public class TodoMain {
     } //end prv stc void save
 
     private static void load() {
+        _todoList.getList().clear();
+
         String line = null;
 
         try {
-            FileReader fileReader = new FileReader (FILENAME);
+            FileReader fileReader = new FileReader (_file);
             BufferedReader bufReader = new BufferedReader (fileReader);
 
             while ((line = bufReader.readLine()) != null) {
@@ -253,7 +254,7 @@ public class TodoMain {
             listItem();
 
         } catch (IOException ioException) {
-             System.out.print ("error saving to a file.\n");
+            System.out.print ("error loading from a file.\n");
 
         }
     } //end prv stc void load
