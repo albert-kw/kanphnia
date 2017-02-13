@@ -35,17 +35,20 @@ public class TodoMain {
     private static FileWriter fileWriter;
 
     private static final String DEFAULT_DIR = "todo";
-    private static final String DEFAULT_FILENAME = "todo_list";
+    private static File _dir = new File (DEFAULT_DIR);
+
     private static String DIR = "";
     private static String FILENAME = "";
 
-    private static File _file = new File (DEFAULT_FILENAME);
+    private static File _file;
 
     private static boolean _active = false;
 
     public TodoMain (String name) {
 
         _todoList = new Todo (name);
+        FILENAME = name;
+        _file = new File (FILENAME);
 
         if (!_file.exists()) {
             try {
@@ -65,7 +68,11 @@ public class TodoMain {
     } //end ctor (String)
 
     public static void main (String[] args) {
-        if (_todoList == null) {
+        if (!_dir.exists()) {
+            _dir.mkdir();
+        }
+
+        if (_dir.listFiles.length == 0) {
 
             new TodoMain (TodoUtil.prompt ("Enter a name for this list: "));
             _active = true;
