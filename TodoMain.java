@@ -14,7 +14,7 @@ import java.io.FileWriter;
 public class TodoMain {
 
     /** TODO:
-     *   * load appends file_list to current list
+     *   * currently 'load' appends file_list to current list
      *   * saves and load list name
      *   * due date for todo_task
      *   * priority for todo_task
@@ -34,8 +34,12 @@ public class TodoMain {
     private static Todo _todoList;
     private static FileWriter fileWriter;
 
-    private static final String FILENAME = "todo_list";
-    private static File _file = new File (FILENAME);
+    private static final String DEFAULT_DIR = "todo";
+    private static final String DEFAULT_FILENAME = "todo_list";
+    private static String DIR = "";
+    private static String FILENAME = "";
+
+    private static File _file = new File (DEFAULT_FILENAME);
 
     private static boolean _active = false;
 
@@ -58,7 +62,7 @@ public class TodoMain {
             load();
         }
 
-    }
+    } //end ctor (String)
 
     public static void main (String[] args) {
         if (_todoList == null) {
@@ -147,7 +151,7 @@ public class TodoMain {
         } else {
             System.out.print ("Item '" + item + "' already in the list.\n");
         }
-    }
+    } //end prv stc void addItem (String)
 
     private static void removeItem (String item) {
         if (_todoList.getList().contains (item)) {
@@ -157,7 +161,7 @@ public class TodoMain {
         } else {
             System.out.print ("Item '" + item + "' not found from the list.\n");
         }
-    }
+    } //end prv stc void removeItem (String)
 
     private static void findItem (String item) {
         if (_todoList.getList().contains (item)) {
@@ -165,11 +169,11 @@ public class TodoMain {
         } else {
             System.out.print ("Item '" + item + "' not found in the list.\n");
         }
-    }
+    } //end prv stc void findItem (String)
 
     private static void getName() {
         System.out.print ("This Todo List's name is: '" + _todoList.getName() + "'.\n");
-    }
+    } //end prv stc void getName
 
     private static void listItem() {
         if (_todoList.getList().size() == 0) {
@@ -185,7 +189,7 @@ public class TodoMain {
             }
 
         }
-    }
+    } //end prv stc void listItem
 
     private static void help() {
         System.out.print (
@@ -199,7 +203,7 @@ public class TodoMain {
             "load\t\t\tload file into list.\n" +
             "(q)uit\t\t\tquits this program.\n"
         );
-    }
+    } //end prv stc void help
 
     private static void save() {
         try {
@@ -219,7 +223,7 @@ public class TodoMain {
             System.out.print ("error saving to a file.\n");
 
         }
-    }
+    } //end prv stc void save
 
     private static void load() {
         String line = null;
@@ -245,6 +249,6 @@ public class TodoMain {
              System.out.print ("error saving to a file.\n");
 
         }
-    }
+    } //end prv stc void load
 
 } //end class TodoMain
