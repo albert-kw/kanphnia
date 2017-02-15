@@ -9,8 +9,12 @@ To-do List
 * add an item to the list
 * remove an item from the list
 * find an item in the list
+  * partial search (case-sensative)
+    * contains (keyword), display result with its ID
+    * display number of search result
 * print the current list's name
 * list all the items in the list
+  * display ID
 * save current list to file
 * load a list from a file
   * clear the current list
@@ -23,6 +27,4 @@ To-do List
 * unique ID to item
    - to search, remove, list
    - | ID | Task |
-* partial search
-   - contains (keyword), displays result with its ID
 * what if many users access the same file?

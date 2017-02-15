@@ -45,7 +45,7 @@ public class TodoMain {
 
         if (_file.exists()) {
 
-            System.out.print ("A previously saved Todo List has been found!\n" +
+            System.out.print ("A previously saved Todo List has been found!\n\n" +
                 "Loading '" + name + "' list...\n");
 
             load();
@@ -68,7 +68,7 @@ public class TodoMain {
         String item = null;
 
         help();
-        switch (TodoUtil.prompt ("Choose an option... ")) {
+        switch (TodoUtil.prompt ("\nChoose an option... ")) {
 
         case "a":
         case "add":
@@ -79,7 +79,7 @@ public class TodoMain {
         case "r":
         case "remove":
             item = TodoUtil.prompt ("Enter a to-do item to remove from the list... ");
-            removeItem (item);
+            removeItem (Integer.parseInt (item));
             break;
 
         case "f":
@@ -136,6 +136,7 @@ public class TodoMain {
         }
     } //end prv stc void addItem (String)
 
+    /** @Deprecated *
     private static void removeItem (String item) {
         if (_todoList.getList().contains (item)) {
             if (_todoList.getList().remove (item)) {
@@ -145,13 +146,44 @@ public class TodoMain {
             System.out.print ("Item '" + item + "' not found from the list.\n");
         }
     } //end prv stc void removeItem (String)
+    */
+
+    private static void removeItem (int itemID) {
+        if (itemID < 1 || itemID > _todoList.getList().size()) {
+
+            System.out.print ("Cannot remove item with ID '" + 
+                itemID + "' that does not exist.\n");
+
+        } else {
+
+            String removedItem = _todoList.getList().remove (itemID-1);
+
+            System.out.print ("Removed item '" + removedItem +
+                "' with ID '" + itemID + "'.\n");
+        }
+
+    } //end prv stc void removeItem (int)
 
     private static void findItem (String item) {
-        if (_todoList.getList().contains (item)) {
-            System.out.print ("Item '" + item + "' found in the list.\n");
-        } else {
-            System.out.print ("Item '" + item + "' not found in the list.\n");
+        
+        boolean found = false;
+        int numFound = 0;
+
+        System.out.print ("\n");
+
+        for (String i : _todoList.getList()) {
+            if (i.contains (item)) {
+
+                found = true;
+                numFound++;
+
+                System.out.print ("ID: " + _todoList.getList().indexOf (i) +
+                    "\t" + "Task: '" + i + "' found in the list.\n");
+            }
         }
+
+        System.out.print ("Found '" + numFound + "' item(s) in list.\n");
+
     } //end prv stc void findItem (String)
 
     private static void getName() {
@@ -167,7 +199,7 @@ public class TodoMain {
                 " items in this list.\n\n");
 
             for (int i=0; i < _todoList.getSize(); i++) {
-                System.out.print ("ID: " + i + "\tTask: " +
+                System.out.print ("ID: " + (i+1) + "\t" + "Task: " +
                     _todoList.getList().get (i) + "\n");
             }
 
