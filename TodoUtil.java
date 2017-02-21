@@ -16,7 +16,6 @@ public class TodoUtil {
 
     private static String algorithm = "AES";
 
-
     public static String prompt (String message) {
         String userInput = "";
 
@@ -32,43 +31,51 @@ public class TodoUtil {
         return userInput;
     } //end stc String prompt (String)
 
-    public static byte[] encrypt (String key, byte[] inputByteArray) {
-        byte[] byteOutput = new byte[0];
+    public static byte[] crypt (int mode, String key, byte[] inputByteArray) {
+        byte[] outputByteArray = new byte[0];
 
         try {
             MessageDigest md = MessageDigest.getInstance ("MD5");
             byte[] hash = md.digest (key.getBytes());
             Cipher cipherAES = Cipher.getInstance (algorithm);
             Key secretKey = new SecretKeySpec (hash, algorithm);
-            cipherAES.init (Cipher.ENCRYPT_MODE, secretKey);
 
-            byteOutput = cipherAES.doFinal (inputByteArray);
+            switch (mode) {
+            case 0:
+                cipherAES.init (Cipher.ENCRYPT_MODE, secretKey);
+                break;
 
-        } catch (Exception e) {
-            System.out.print ("Error encrypting contents to file.\n" + e);
-        }
+            case 1:
+                cipherAES.init (Cipher.DECRYPT_MODE, secretKey);
+                break;
 
-        return byteOutput;
+            default:
 
-    } //end stc byte[] encrypt (String, byte[])
+            }
 
-    public static byte[] decrypt (String key, byte[] inputByte) {
-        byte[] byteOutput = new byte[0];
-
-        try {
-            MessageDigest md = MessageDigest.getInstance ("MD5");
-            byte[] hash = md.digest (key.getBytes());
-            Cipher cipherAES = Cipher.getInstance (algorithm);
-            Key secretKey = new SecretKeySpec (hash, algorithm);
-            cipherAES.init (Cipher.DECRYPT_MODE, secretKey);
-
-            byteOutput = cipherAES.doFinal (inputByte);
+            outputByteArray = cipherAES.doFinal (inputByteArray);
 
         } catch (Exception e) {
-            System.out.print ("Error decrypting contents from file.\n" + e);
+            switch (mode) {
+            case 0:
+                System.out.print ("Error encrypting contents to file.\n" + e +
+                    "\n");
+                break;
+
+            case 1:
+                System.out.print ("Error decrypting contents to file.\n" + e +
+                    "\n");
+                break;
+
+            default:
+
+            }
+
+            System.exit (1);
         }
 
-        return byteOutput;
-    } //end stc byte[] decrypt (String, byte[])
+        return outputByteArray;
+
+    } //end stc byte[] crypt (int, String, byte[])
 
 } //end class TodoUtil
