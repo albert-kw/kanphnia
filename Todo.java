@@ -13,7 +13,7 @@ public class Todo {
     public String getName() {
         return _name;
     }
-    
+
     private Todo(){}
 
     public Todo (String name) {

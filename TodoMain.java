@@ -6,15 +6,13 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class TodoMain {
 
     private static Todo _todoList;
-    private static FileWriter fileWriter;
+    private static String _key;
 
     private static final String DEFAULT_DIR = "todo";
     private static File _dir = new File (DEFAULT_DIR);
@@ -35,21 +33,13 @@ public class TodoMain {
         _file = new File (DEFAULT_DIR + File.separator + FILENAME);
 
         _todoList = new Todo (name);
-        System.out.printf ("\n'%s' To-do List made\n",
-            _todoList.getName());
+        System.out.printf ("\n'%s' To-do List made\n", _todoList.getName());
+        System.out.flush();
 
         /** @Debug *
         System.out.print ("Absolute Filepath: " + _file.getAbsolutePath() +
             "\n");
         */
-
-        if (_file.exists()) {
-
-            System.out.print ("A previously saved Todo List has been found!\n\n" +
-                "Loading '" + name + "' list...\n");
-
-            load();
-        }
 
     } //end ctor (String)
 
@@ -57,6 +47,22 @@ public class TodoMain {
 
         new TodoMain (TodoUtil.prompt ("Enter a name for this list: "));
         _active = true;
+
+        _key = TodoUtil.prompt ("Enter a password to be used: ");
+
+        if (_file.exists()) {
+
+            /*
+            System.out.format ("\nA previously saved Todo List has been " +
+                "found!\nLoading '%s' list...\n\n", _todoList.getName());
+            System.out.flush();
+            */
+
+            System.out.print ("\nA previously saved Todo List has been " +
+                "found!\nLoading '" + _todoList.getName() + "' list...\n\n");
+
+            load();
+        }
 
         while (_active) {
             decide();
@@ -128,11 +134,13 @@ public class TodoMain {
     private static void addItem (String item) {
         if (!_todoList.getList().contains (item)) {
             if (_todoList.getList().add (item)) {
-                System.out.printf ("\tItem '%s' added successfully to the list.\n",
-                    item);
+                System.out.printf ("\tItem '%s' added successfully to the " +
+                    "list.\n", item);
+                System.out.flush();
             }
         } else {
-            System.out.print ("Item '" + item + "' already in the list.\n");
+            System.out.printf ("Item '%s' already in the list.\n", item);
+            System.out.flush();
         }
     } //end prv stc void addItem (String)
 
@@ -151,7 +159,7 @@ public class TodoMain {
     private static void removeItem (int itemID) {
         if (itemID < 1 || itemID > _todoList.getList().size()) {
 
-            System.out.print ("Cannot remove item with ID '" + 
+            System.out.print ("Cannot remove item with ID '" +
                 itemID + "' that does not exist.\n");
 
         } else {
@@ -165,7 +173,7 @@ public class TodoMain {
     } //end prv stc void removeItem (int)
 
     private static void findItem (String item) {
-        
+
         boolean found = false;
         int numFound = 0;
 
@@ -187,7 +195,9 @@ public class TodoMain {
     } //end prv stc void findItem (String)
 
     private static void getName() {
-        System.out.print ("This Todo List's name is: '" + _todoList.getName() + "'.\n");
+        System.out.print ("This Todo List's name is: '" +
+            _todoList.getName() + "'.\n");
+
     } //end prv stc void getName
 
     private static void listItem() {
@@ -221,56 +231,78 @@ public class TodoMain {
     } //end prv stc void help
 
     private static void save() {
-        try {
+        if (_todoList.getSize() > 0) {
+            try {
 
-            if (!_file.exists()) {
-                _file.createNewFile();
+                if (!_file.exists()) {
+                    _file.createNewFile();
+                }
+
+                byte listContent[] = listToString().getBytes();
+
+                FileOutputStream fileOutputStream = new FileOutputStream (_file);
+                fileOutputStream.write (TodoUtil.encrypt (_key, listContent));
+
+                fileOutputStream.close();
+
+                System.out.printf ("Done saving to file '%s'\n", FILENAME);
+                System.out.flush();
+
+            } catch (IOException ioException) {
+                System.out.print ("error saving to a file.\n");
+
             }
 
-            FileWriter fileWriter = new FileWriter (_file);
-            BufferedWriter bufWriter = new BufferedWriter (fileWriter);
-
-            for (String i : _todoList.getList()) {
-                bufWriter.write (i);
-                bufWriter.newLine();
-            }
-
-            bufWriter.close();
-
-            System.out.print ("Done saving to file '" + FILENAME + "'\n");
-
-        } catch (IOException ioException) {
-            System.out.print ("error saving to a file.\n");
-
+        } else {
+            System.out.print ("Nothing to be saved.\n");
         }
     } //end prv stc void save
 
     private static void load() {
         _todoList.getList().clear();
 
-        String line = null;
-
         try {
-            FileReader fileReader = new FileReader (_file);
-            BufferedReader bufReader = new BufferedReader (fileReader);
+            byte[] byteInput = new byte[(int) _file.length()];
 
-            while ((line = bufReader.readLine()) != null) {
-                if (!line.trim().isEmpty() ||
-                    !line.isEmpty()) {
+            FileInputStream fileInputStream = new FileInputStream (_file);
+            fileInputStream.read (byteInput);
 
-                    addItem (line);
+            String content = new String (TodoUtil.decrypt (_key, byteInput));
+
+            for (String i : content.split (System.getProperty ("line.separator"))) {
+                if (!i.isEmpty() || !i.trim().isEmpty() || !i.equals ("")) {
+                    /** @Debug *
+                    System.out.printf ("Loaded and going to add: '%s'\n", i);
+                    System.out.flush();
+                    */
+
+                    addItem (i);
                 }
             }
 
-            bufReader.close();
+            fileInputStream.close();
 
-            System.out.print ("\n");
-            listItem();
-
-        } catch (IOException ioException) {
-            System.out.print ("error loading from a file.\n");
-
+        } catch (Exception e) {
+            System.out.print ("Cannot read the file.\n");
         }
+
+        System.out.print ("\n");
+        listItem();
+
     } //end prv stc void load
+
+    private static String listToString() {
+        String content = "";
+        for (int i=0; i < _todoList.getSize(); i++) {
+            content += _todoList.getList().get (i);
+
+            if (i != _todoList.getSize()-1) {
+                content += System.getProperty ("line.separator");
+            }
+        }
+
+        return content;
+
+    } //end prv stc String toString
 
 } //end class TodoMain

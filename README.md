@@ -3,9 +3,13 @@ To-do List
 
 ## Current Functionalities:
 * Manage one list at a time
+* password to encrypt / decrypt file
 * list name is the filename
   * starts checking if a file with the same name exists
   * automatically load a list that has the same name
+* unique ID to item
+   * to search, remove, list
+   * | ID | Task |
 * add an item to the list
 * remove an item from the list
 * find an item in the list
@@ -24,7 +28,5 @@ To-do List
 ##TODO:
 * due date for item
 * priority for item
-* unique ID to item
-   - to search, remove, list
-   - | ID | Task |
 * what if many users access the same file?
+* manage multiple lists
